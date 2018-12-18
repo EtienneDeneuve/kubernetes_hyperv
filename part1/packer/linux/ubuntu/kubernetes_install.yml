@@ -1,0 +1,37 @@
+- hosts: local
+  connection: local
+  tasks:
+    - name: Install prerequisites
+      apt: 
+        name: ['apt-transport-https', 'curl', 'software-properties-common', 'ca-certificates']
+        state: present
+        update_cache: yes
+      become: True
+    - name: Add Apt signing key for Kubernetes repo from Google
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+      become: True
+    - name: Add Apt signing key for docker repo
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      become: True
+    - name: Add an Apt repository for docker
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+        filename: docker
+      become: True
+    - name: Add an Apt repository for kubernetes
+      apt_repository:
+        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: kubernetes
+      become: True
+    - name: Install stuff
+      apt: 
+        name: ['kubelet', 'kubeadm', 'kubectl', 'docker-ce']
+        state: present
+        update_cache: yes
+      become: True

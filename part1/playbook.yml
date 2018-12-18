@@ -1,0 +1,60 @@
+- hosts: hyperv
+  tasks:
+    - name: "Packer - validate server image"
+      win_command: packer validate .\hyperv-ubuntu-18.04.json 
+      args:
+        chdir: 'C:\\Users\\Administrator\\Documents\\git\\webcast\\part1\\packer\\'
+      retries: 2
+      delay: 60
+      become: True
+
+    - name: "Packer - build server image"
+      win_command: packer -machine-readable build -force .\hyperv-ubuntu-18.04.json
+      args:
+        chdir: 'C:\\Users\\Administrator\\Documents\\git\\webcast\\part1\\packer\\'
+      retries: 2
+      delay: 60
+      become: True
+
+    - name: "Adding xHyperV module using DSC"
+      win_psmodule:
+        name: xHyper-V
+        state: present
+      become: True
+
+    - name: "create folders"
+      win_file:
+        path: "C:\\Kubernetes\\{{ item }}"
+        state: directory
+      with_items:
+        - master
+        - worker01
+        - worker02
+
+    - name: "copy vhd in folders"
+      win_copy:
+        src: "C:\\Users\\Administrator\\Documents\\git\\webcast\\part1\\packer\\output-hyperv-iso\\Virtual Hard Disks\\ubuntu-bionic.vhdx"
+        dest: "c:\\Kubernetes\\{{ item }}\\{{ item }}.vhdx"
+        remote_src: yes
+      with_items:
+        - master
+        - worker01
+        - worker02
+
+    - name: "Launch dsc configuration script"
+      win_shell: C:\Users\Administrator\Documents\git\webcast\part1\dsc\config_vm.ps1
+      become: true
+    
+    - name: "Retrieving IP of each vm"
+      win_shell: Get-VMNetworkAdapter -VMName * | ConvertTo-Json
+      register: vms
+      become: true
+    
+    - set_fact:
+        jsonvms: "{{ vms.stdout | from_json }}"
+
+    - name: "Debug"
+      debug:
+        msg: "{{ jsonvms | json_query(query) }}"
+      vars:
+        query: "*.VMName,IPAddresses"
