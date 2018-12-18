@@ -1,0 +1,7 @@
+.\part1\packer\output-hyperv-iso
+.\part1\packer\packer_cache
+.\part1\dsc\CreateFolder
+*.box
+*.vhd
+*.vhdx
+*.iso
