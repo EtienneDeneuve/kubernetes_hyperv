@@ -61,38 +61,25 @@
       with_items:
         - "{{ vmiplist }}"
     
-    - name: "Add Host to inventory"
-      add_host:
-        name: "k8s_master"
-        groups: kube,master
-        ansible_host: "{{ vmiplist[0][0] }}"
-        ansible_user: vagrant
-        ansible_password: vagrant
-        ansible_become_user: vagrant
-        ansible_become_pass: vagrant
+    - name: "Generate new inventory"
+      template:
+        src: "{{ playbook_dir }}/template.j2"
+        dest: "{{ playbook_dir }}/../inventory/kube.yml"
+      vars:
+        master_ip: "{{ vmiplist[0][0] }}"
+        node01_ip: "{{ vmiplist[1][0] }}"
+        node02_ip: "{{ vmiplist[2][0] }}"
       delegate_to: localhost
 
-    - name: "Add Host to inventory"
-      add_host:
-        name: "k8s_node1"
-        groups: kube,node
-        ansible_host: "{{ vmiplist[1][0] }}"
-        ansible_user: vagrant
-        ansible_password: vagrant
-        ansible_become_user: vagrant
-        ansible_become_pass: vagrant
-      delegate_to: localhost
 
-    - name: "Add Host to inventory"
-      add_host:
-        name: "k8s_node2"
-        groups: kube,node
-        ansible_host: "{{ vmiplist[2][0] }}"
-        ansible_user: vagrant
-        ansible_password: vagrant
-        ansible_become_user: vagrant
-        ansible_become_pass: vagrant
-      delegate_to: localhost
 
-    - name: "export inventory"
-      shell: ansible-inventory --list
+
+    # - name: "export inventory"
+    #   shell: ansible-inventory --list
+    #   register: list
+    #   delegate_to: localhost
+
+    # - name: "debug inventory"
+    #   debug:
+    #     msg: "{{ list.stdout }}"
+    
