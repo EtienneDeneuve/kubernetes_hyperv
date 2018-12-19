@@ -7,3 +7,4 @@ part1/dsc/CreateFolder
 *.iso
 part1/dsc/CreateFolder
 part1/packer/output-hyperv-iso/*
+*.retry
