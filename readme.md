@@ -1,3 +1,6 @@
+
+[![HitCount](http://hits.dwyl.io/etiennedeneuve/kubernetes_hyperv.svg)](http://hits.dwyl.io/etiennedeneuve/kubernetes_hyperv)
+
 # Create a Kubernetes Cluster on Hyper V
 
 ## Prerequisites
