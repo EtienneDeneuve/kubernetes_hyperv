@@ -21,6 +21,7 @@
 
     - debug:
         msg: "{{ inventory_hostname }}"
+        verbosity: 2
     
     - name: Disable swap 
       shell: swapoff -a
@@ -78,18 +79,21 @@
       register: results
     - debug:
         var: results.stdout
+        verbosity: 2
     - set_fact:
         token: "{{ results.stdout | regex_search(regexp, '\\2') | first }}"
       vars:
         regexp: '([^\s]+\s){4}([^\s]+)'
     - debug:
         var: token
+        verbosity: 2
     - set_fact:
         hash: "{{ results.stdout | regex_search(regexp, '\\2') | first }}"
       vars:
         regexp: '([^\s]+\s){6}([^\s]+)'
     - debug:
         var: hash
+        verbosity: 2
     - name: set ip of master
       set_fact:
         masterip: "{{ ansible_eth0.ipv4.address }}"
@@ -110,14 +114,17 @@
     - name:
       debug:
         msg: "[Worker] K8S_TOKEN_HOLDER K8S token is {{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+        verbosity: 2
 
     - name:
       debug:
         msg: "[Worker] K8S_TOKEN_HOLDER K8S Hash is  {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
+        verbosity: 2
     
     - name:
       debug:
         msg: "[Worker] K8S_TOKEN_HOLDER K8S Hash is  {{ hostvars['K8S_TOKEN_HOLDER']['masterip'] }}"
+        verbosity: 2
 
     - name: join cluster
       shell: "kubeadm join {{ hostvars['K8S_TOKEN_HOLDER']['masterip'] }}:6443 --token {{ hostvars['K8S_TOKEN_HOLDER']['token'] }} --discovery-token-ca-cert-hash {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
