@@ -1,0 +1,130 @@
+- hosts: kube
+  become: yes
+  pre_tasks:
+    - name: set timezone to Asia/Tokyo
+      timezone:
+        name: Europe/Paris  
+
+    - name: install ntpdate
+      apt: 
+        name: ['ntpdate']
+        update_cache: no
+        state: present
+      become: yes
+
+    - name: force time sync 
+      shell: ntpdate time.windows.com
+      become: yes
+    
+    - hostname:
+        name: "{{ inventory_hostname }}"
+
+    - debug:
+        msg: "{{ inventory_hostname }}"
+    
+    - name: Disable swap 
+      shell: swapoff -a
+
+    - name: Disable swapoff permanently
+      replace:
+        path: /etc/fstab
+        regexp: '^(\s*)([^#\n]+\s+)(\w+\s+)swap(\s+.*)$'
+        replace: '#\1\2\3swap\4'
+        backup: yes
+      become: yes
+  tasks:
+    - name: Add Apt signing key for Kubernetes repo from Google
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+      become: True
+    - name: Add Apt signing key for docker repo
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+      become: True
+    - name: Add an Apt repository for docker
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+        state: present
+        filename: docker
+      become: True
+    - name: Add an Apt repository for kubernetes
+      apt_repository:
+        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+        filename: kubernetes
+    - name: Install prerequisites
+      apt: 
+        name: ['apt-transport-https', 'curl', 'software-properties-common', 'ca-certificates']
+        state: present
+      become: yes
+    - name: Install stuff
+      apt: 
+        name: ['kubelet', 'kubeadm', 'kubectl', 'docker-ce']
+        state: present
+        update_cache: yes
+      become: True
+
+- hosts: master
+  become: yes
+  tasks:
+    # - name: Init cluster
+    #   shell: "kubeadm init --apiserver-advertise-address={{ ansible_eth0.ipv4.address }}"
+    #   register: kubeadmoutput
+    
+    - name: find token
+      shell: kubeadm token create --print-join-command
+      register: results
+    - debug:
+        var: results.stdout
+    - set_fact:
+        token: "{{ results.stdout | regex_search(regexp, '\\2') | first }}"
+      vars:
+        regexp: '([^\s]+\s){4}([^\s]+)'
+    - debug:
+        var: token
+    - set_fact:
+        hash: "{{ results.stdout | regex_search(regexp, '\\2') | first }}"
+      vars:
+        regexp: '([^\s]+\s){6}([^\s]+)'
+    - debug:
+        var: hash
+    - name: set ip of master
+      set_fact:
+        masterip: "{{ ansible_eth0.ipv4.address }}"
+    - debug:
+        var: masterip
+
+    - name: "Add K8S Token and Hash to dummy host"
+      add_host:
+        name:   "K8S_TOKEN_HOLDER"
+        token:  "{{ token }}"
+        hash:   "{{ hash }}"
+        masterip: "{{ ansible_eth0.ipv4.address }}"
+
+- hosts: nodes
+  become: yes
+  tasks:
+
+    - name:
+      debug:
+        msg: "[Worker] K8S_TOKEN_HOLDER K8S token is {{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+
+    - name:
+      debug:
+        msg: "[Worker] K8S_TOKEN_HOLDER K8S Hash is  {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
+    
+    - name:
+      debug:
+        msg: "[Worker] K8S_TOKEN_HOLDER K8S Hash is  {{ hostvars['K8S_TOKEN_HOLDER']['masterip'] }}"
+
+    - name: join cluster
+      shell: "kubeadm join {{ hostvars['K8S_TOKEN_HOLDER']['masterip'] }}:6443 --token {{ hostvars['K8S_TOKEN_HOLDER']['token'] }} --discovery-token-ca-cert-hash {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
+  
+- hosts: master
+  tasks:
+    - name: apply flannel
+      shell: |
+        kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+        kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
