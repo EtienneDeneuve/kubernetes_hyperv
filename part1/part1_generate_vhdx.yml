@@ -1,8 +1,8 @@
 - hosts: hyperv
   tasks:
-    
+
     - name: "Check if image exists"
-      stat:
+      win_stat:
         path: "C:\\Users\\Administrator\\Documents\\git\\webcast\\part1\\packer\\output-hyperv-iso\\Virtual Hard Disks\\ubuntu-bionic.vhdx"
       register: stat_image
       
