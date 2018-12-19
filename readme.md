@@ -78,3 +78,11 @@ ansible-playbook -i inventory\kube.yml part4\part4_create_cluster.yml
 ```
 
 Now ssh to the master node and you should have a running Kubernetes cluster!
+
+## Code of Conduct
+This project has adopted the [Microsoft Open Source Code of
+Conduct](https://opensource.microsoft.com/codeofconduct/).
+For more information see the [Code of Conduct
+FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
+contact [opencode@microsoft.com](mailto:opencode@microsoft.com)
+with any additional questions or comments.
