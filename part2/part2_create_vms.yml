@@ -16,15 +16,6 @@
         - worker01
         - worker02
 
-    - name: "Check if image exists"
-      stat:
-        path: "c:\\Kubernetes\\{{ item }}\\{{ item }}.vhdx"
-      register: stat_image
-      with_items:
-        - master
-        - worker01
-        - worker02
-      
     - name: "copy vhd in folders"
       win_copy:
         src: "C:\\Users\\Administrator\\Documents\\git\\webcast\\part1\\packer\\output-hyperv-iso\\Virtual Hard Disks\\ubuntu-bionic.vhdx"

@@ -1,39 +1,12 @@
-- hosts: kube
-  become: yes
-  pre_tasks:
-    - name: set timezone to Asia/Tokyo
-      timezone:
-        name: Europe/Paris  
-
-    - name: install ntpdate
-      apt: 
-        name: ['ntpdate']
-        update_cache: no
-        state: present
-      become: yes
-
-    - name: force time sync 
-      shell: ntpdate time.windows.com
-      become: yes
-    
-    - hostname:
-        name: "{{ inventory_hostname }}"
-
-    - debug:
-        msg: "{{ inventory_hostname }}"
-    
-    - name: Disable swap 
-      shell: swapoff -a
-
-    - name: Disable swapoff permanently
-      replace:
-        path: /etc/fstab
-        regexp: '^(\s*)([^#\n]+\s+)(\w+\s+)swap(\s+.*)$'
-        replace: '#\1\2\3swap\4'
-        backup: yes
-      become: yes
-
+- hosts: local
+  connection: local
   tasks:
+    - name: Install prerequisites
+      apt: 
+        name: ['apt-transport-https', 'curl', 'software-properties-common', 'ca-certificates']
+        state: present
+        update_cache: yes
+      become: True
     - name: Add Apt signing key for Kubernetes repo from Google
       apt_key:
         url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
@@ -55,11 +28,7 @@
         repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
         state: present
         filename: kubernetes
-    - name: Install prerequisites
-      apt: 
-        name: ['apt-transport-https', 'curl', 'software-properties-common', 'ca-certificates']
-        state: present
-      become: yes
+      become: True
     - name: Install stuff
       apt: 
         name: ['kubelet', 'kubeadm', 'kubectl', 'docker-ce']

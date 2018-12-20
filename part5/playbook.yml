@@ -1,0 +1,53 @@
+---
+- hosts: hyperv
+  become: yes
+  roles:
+    - hyperv
+    - create_vhdx
+    - create_vm
+
+- hosts: kube
+  become: yes
+  roles:
+    - kube
+
+- hosts: master
+  become: yes
+  roles:
+    - kube_master
+
+- hosts: master
+  become: no
+  tasks:
+    - name: check if node is already part of cluster
+      shell: kubectl get nodes | grep k8snode1
+      register: node01clustered
+    - name: check if node is already part of cluster
+      shell: kubectl get nodes | grep k8snode2
+      register: node02clustered
+    - name: set fact
+      set_fact:
+          node02clustered: "{{ node02clustered }}"
+          node01clustered: "{{ node01clustered }}"
+
+    - name: "Add host to share between playbooks"
+      add_host:
+        name:   "K8S_CLUSTERED_HOLDER"
+        node1:  "{{ node01clustered.stdout }}"
+        node2:   "{{ node02clustered.stdout }}"
+
+- hosts: nodes
+  become: no
+  tasks:
+    - name: set fact with stdout
+      set_fact:
+        cluster01up: "{{ hostvars['K8S_CLUSTERED_HOLDER']['node1'] is search('Ready')}}"
+        cluster02up: "{{ hostvars['K8S_CLUSTERED_HOLDER']['node2'] is search('Ready')}}"
+
+    - name: join cluster
+      shell: "kubeadm join {{ hostvars['K8S_TOKEN_HOLDER']['masterip'] }}:6443 --token {{ hostvars['K8S_TOKEN_HOLDER']['token'] }} --discovery-token-ca-cert-hash {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
+      when: (cluster01up|bool == false) and ( inventory_hostname == 'k8snode1' )
+    
+    - name: join cluster
+      shell: "kubeadm join {{ hostvars['K8S_TOKEN_HOLDER']['masterip'] }}:6443 --token {{ hostvars['K8S_TOKEN_HOLDER']['token'] }} --discovery-token-ca-cert-hash {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
+      when: (cluster02up|bool == false) and ( inventory_hostname == 'k8snode2' )

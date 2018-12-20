@@ -1,0 +1,28 @@
+
+- name: check if node is already part of cluster
+  shell: kubectl get nodes | grep {{ inventory_hostname }}
+  register: nodeclustered
+  hosts: master
+
+- name: set fact with stdout
+  set_fact:
+    clusterup: "{{ nodeclustered.stdout is search('Ready')}}"
+
+- name:
+  debug:
+    msg: "[Worker] K8S_TOKEN_HOLDER K8S token is {{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+  when: (clusterup|bool == false)
+    
+- name:
+  debug:
+    msg: "[Worker] K8S_TOKEN_HOLDER K8S Hash is  {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
+  when: (clusterup|bool == false)
+
+- name:
+  debug:
+    msg: "[Worker] K8S_TOKEN_HOLDER K8S Hash is  {{ hostvars['K8S_TOKEN_HOLDER']['masterip'] }}"
+  when: (clusterup|bool == false)
+  
+- name: join cluster
+  shell: "kubeadm join {{ hostvars['K8S_TOKEN_HOLDER']['masterip'] }}:6443 --token {{ hostvars['K8S_TOKEN_HOLDER']['token'] }} --discovery-token-ca-cert-hash {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
+  when: (clusterup|bool == false)

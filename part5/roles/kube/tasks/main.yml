@@ -1,0 +1,55 @@
+- name: set timezone to Europe/Paris
+  timezone:
+    name: Europe/Paris  
+
+- name: install ntpdate
+  apt: 
+    name: ['ntpdate']
+    update_cache: no
+    state: present
+  become: yes
+
+- name: force time sync 
+  shell: ntpdate time.windows.com
+  become: yes
+
+- name: Set hostname to ensure they are unique
+  hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Disable swap 
+  shell: swapoff -a
+
+- name: Disable swap permanently
+  replace:
+    path: /etc/fstab
+    regexp: '^(\s*)([^#\n]+\s+)(\w+\s+)swap(\s+.*)$'
+    replace: '#\1\2\3swap\4'
+    backup: yes
+  become: yes
+
+- name: Add Apt signing key for Kubernetes repo from Google
+  apt_key:
+    url: "{{ item }}"
+    state: present
+  become: True
+  with_items:
+    - https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    - https://download.docker.com/linux/ubuntu/gpg
+
+- name: Add an Apt repository for Docker & Kubernetes
+  apt_repository:
+    repo: "{{ item.repo }}"
+    state: present
+    filename: "{{ item.filename }}"
+  become: True
+  with_items:
+    - { filename: docker, repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" }
+    - { filename: kubernetes, repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main" }
+
+- name: Install packages
+  apt: 
+    name: ['apt-transport-https', 'curl', 'software-properties-common', 'ca-certificates', 'kubelet', 'kubeadm', 'kubectl', 'docker-ce']
+    state: present
+    update_cache: yes
+  become: True

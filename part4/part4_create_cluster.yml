@@ -1,0 +1,84 @@
+
+- hosts: master
+  become: yes
+  tasks:
+
+    - name: Init cluster
+      shell: "kubeadm init --pod-network-cidr=10.244.0.0/16"
+      register: kubeadmoutput
+    
+    - name: find token
+      shell: kubeadm token create --print-join-command
+      register: results
+
+    - debug:
+        var: results.stdout
+
+    - set_fact:
+        token: "{{ results.stdout | regex_search(regexp, '\\2') | first }}"
+      vars:
+        regexp: '([^\s]+\s){4}([^\s]+)'
+
+    - debug:
+        var: token
+
+    - set_fact:
+        hash: "{{ results.stdout | regex_search(regexp, '\\2') | first }}"
+      vars:
+        regexp: '([^\s]+\s){6}([^\s]+)'
+
+    - debug:
+        var: hash
+
+    - name: set ip of master
+      set_fact:
+        masterip: "{{ ansible_eth0.ipv4.address }}"
+
+    - debug:
+        var: masterip
+
+    - name: "Add K8S Token and Hash to dummy host"
+      add_host:
+        name:   "K8S_TOKEN_HOLDER"
+        token:  "{{ token }}"
+        hash:   "{{ hash }}"
+        masterip: "{{ ansible_eth0.ipv4.address }}"
+
+    - name: "create .kube folder"
+      file:
+        path: $HOME/.kube
+        state: directory
+        mode: 0755
+    
+    - name: "copy /etc/kubernetes/admin.conf"
+      copy: 
+        src: /etc/kubernetes/admin.conf
+        dest: $HOME/.kube/config
+        remote_src: yes
+        owner: vagrant
+        group: vagrant
+      become: yes
+
+    - name: apply flannel
+      shell: |
+        kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+        kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
+
+- hosts: nodes
+  become: yes
+  tasks:
+
+    - name:
+      debug:
+        msg: "[Worker] K8S_TOKEN_HOLDER K8S token is {{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+
+    - name:
+      debug:
+        msg: "[Worker] K8S_TOKEN_HOLDER K8S Hash is  {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
+    
+    - name:
+      debug:
+        msg: "[Worker] K8S_TOKEN_HOLDER K8S Hash is  {{ hostvars['K8S_TOKEN_HOLDER']['masterip'] }}"
+
+    - name: join cluster
+      shell: "kubeadm join {{ hostvars['K8S_TOKEN_HOLDER']['masterip'] }}:6443 --token {{ hostvars['K8S_TOKEN_HOLDER']['token'] }} --discovery-token-ca-cert-hash {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
