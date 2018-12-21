@@ -39,7 +39,7 @@ Configuration CreateFolder
             WaitForIP       = $WaitForIP
             SecureBoot = $false
           #  DependsOn       = '[xVHD]Worker01'
-    }   
+    }
         xVMHyperV Worker02 {
             Name            = "K8sclu_Worker-02"
             SwitchName      = $vswitch

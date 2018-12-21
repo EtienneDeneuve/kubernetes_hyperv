@@ -40,7 +40,7 @@ Configuration CreateFolder
             RestartIfNeeded = $true
             WaitForIP       = $WaitForIP
             SecureBoot = $false
-    }   
+    }
         xVMHyperV Worker02 {
             Name            = "K8sclu_Worker-02"
             SwitchName      = $vswitch

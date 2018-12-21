@@ -2,7 +2,7 @@
   connection: local
   tasks:
     - name: Install prerequisites
-      apt: 
+      apt:
         name: ['apt-transport-https', 'curl', 'software-properties-common', 'ca-certificates']
         state: present
         update_cache: yes
@@ -30,7 +30,7 @@
         filename: kubernetes
       become: True
     - name: Install stuff
-      apt: 
+      apt:
         name: ['kubelet', 'kubeadm', 'kubectl', 'docker-ce']
         state: present
         update_cache: yes

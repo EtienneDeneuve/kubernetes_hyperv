@@ -22,9 +22,15 @@
     - name: check if node is already part of cluster
       shell: kubectl get nodes | grep k8snode1
       register: node01clustered
+      tags:
+        - skip_ansible_lint
+
     - name: check if node is already part of cluster
       shell: kubectl get nodes | grep k8snode2
       register: node02clustered
+      tags:
+        - skip_ansible_lint
+
     - name: set fact
       set_fact:
           node02clustered: "{{ node02clustered }}"
@@ -47,7 +53,11 @@
     - name: join cluster
       shell: "kubeadm join {{ hostvars['K8S_TOKEN_HOLDER']['masterip'] }}:6443 --token {{ hostvars['K8S_TOKEN_HOLDER']['token'] }} --discovery-token-ca-cert-hash {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
       when: (cluster01up|bool == false) and ( inventory_hostname == 'k8snode1' )
-    
+      tags:
+        - skip_ansible_lint
+
     - name: join cluster
       shell: "kubeadm join {{ hostvars['K8S_TOKEN_HOLDER']['masterip'] }}:6443 --token {{ hostvars['K8S_TOKEN_HOLDER']['token'] }} --discovery-token-ca-cert-hash {{ hostvars['K8S_TOKEN_HOLDER']['hash'] }}"
       when: (cluster02up|bool == false) and ( inventory_hostname == 'k8snode2' )
+      tags:
+        - skip_ansible_lint

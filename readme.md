@@ -20,9 +20,9 @@ On a Windows 10 host :
 
 In WSL:
 
-1. Install the [dependencies](#Install-Ansible-in-WSL) 
+1. Install the [dependencies](#Install-Ansible-in-WSL)
 1. Clone the project ``git clone https://github.com/EtienneDeneuve/kubernetes_hyperv/kubernetes_hyperv.git``
-1. Update the credential for hyperv in ``inventory/hosts.yml`` 
+1. Update the credential for hyperv in ``inventory/hosts.yml``
 1. Launch the playbook in ``part5`` : ``ansible-playbook -i inventory/hosts.yml part5/playbook.yml``
 1. SSH into the master node and start playing with your Kubernetes Cluster !
 
@@ -41,7 +41,7 @@ In this vm you need Hyper V Feature enabled and Windows Subsystem Linux installe
 For Windows Server 2019 :
 
 ```Powershell
-Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart 
+Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart
 ```
 
 For Windows 10 :
@@ -81,7 +81,7 @@ or use the one in misc folder : [here](webcast\misc\host_preparation\01_config_w
 
 #### Install Ansible in WSL
 
-Launch the ``04_configure.sh`` script in ``misc\wsl_preparation``: 
+Launch the ``04_configure.sh`` script in ``misc\wsl_preparation``:
 sudo .\04_configure.sh
 
 ## Generate ubuntu vhdx using Packer:

@@ -30,29 +30,34 @@
     - name: "Launch dsc configuration script"
       win_shell: C:\Users\Administrator\Documents\git\webcast\part2\dsc\config_vm.ps1
       become: true
-    
+      tags:
+        - skip_ansible_lint
+
     - name: "Retrieving IP of each vm"
       win_shell: Get-VMNetworkAdapter -VMName * | ConvertTo-Json
       register: vms
       become: true
-    
-    - set_fact:
+      tags:
+        - skip_ansible_lint
+
+    - name: Extract & Convert result to json
+      set_fact:
         jsonvms: "{{ vms.stdout | from_json }}"
-    
+
     - name: "Grab ipv4 only"
       set_fact:
         vmiplist: "{{ jsonvms | json_query(filter) }}"
       vars:
         filter: >-
           [].IPAddresses
-    
+
     - name: "Debug"
       debug:
         msg: "{{ item[0] }}"
         verbosity: 2
       with_items:
         - "{{ vmiplist }}"
-    
+
     - name: "Generate new inventory"
       template:
         src: "{{ playbook_dir }}/template.j2"

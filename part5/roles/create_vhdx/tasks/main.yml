@@ -24,10 +24,6 @@
     output_dir: "{{ root }}\\Source_vhdx"
     root: "c:\\Kubernetes"
 
-#"C:\Kubernetes\Source_vhdx\Virtual Hard Disks\ubuntu-bionic.vhdx"
-
-
-
 - name: "Packer - validate server image"
   win_command: "packer validate -var 'hyperv_switchname={{ hyperv_switch }}' -var 'username={{ username }}' -var 'password={{ password }}' -var 'output_dir={{ output_dir }}' .\\hyperv-ubuntu-18.04.json"
   args:
@@ -42,6 +38,8 @@
     password: "P@ssword1234!"
     output_dir: '{{ root }}\Source_vhdx\'
     root: "c:\\Kubernetes"
+  tags:
+    - skip_ansible_lint
 
 - name: "Packer - build server image"
   win_command: "packer -machine-readable build -force -var 'hyperv_switchname={{ hyperv_switch }}' -var 'username={{ username }}' -var 'password={{ password }}' -var 'output_dir={{ output_dir }}' .\\hyperv-ubuntu-18.04.json"
@@ -57,3 +55,5 @@
     password: "P@ssword1234!"
     output_dir: '{{ root }}\Source_vhdx\'
     root: "c:\\Kubernetes"
+  tags:
+    - skip_ansible_lint

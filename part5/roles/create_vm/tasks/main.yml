@@ -37,7 +37,7 @@
 
 - name: "Launch dsc configuration script"
   win_shell: ".\\config_vm.ps1 -vmswitch {{ hyperv_switch}} -rootpath {{ root }}"
-  become: 
+  become:
   args:
     chdir: "{{ root }}"
   vars:
@@ -46,3 +46,5 @@
     password: "P@ssword1234!"
     output_dir: "{{ root }}\\Source_vhdx"
     root: "c:\\Kubernetes"
+  tags:
+    - skip_ansible_lint

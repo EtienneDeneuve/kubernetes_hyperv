@@ -1,6 +1,6 @@
 
 - name: Ensure Hyper V is installed
-  win_feature: 
+  win_feature:
     name: Hyper-V
     state: present
     include_sub_features: yes

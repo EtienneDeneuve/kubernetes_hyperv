@@ -1,8 +1,10 @@
 
-- name: checking cluster
+- name: Checking cluster state
   shell: "kubectl get nodes | grep {{ inventory_hostname }}"
   register: stnodes
   become: False
+  tags:
+    - skip_ansible_lint
 
 - name: set fact with stdout
   set_fact:
@@ -12,19 +14,25 @@
   shell: "kubeadm init --pod-network-cidr=10.244.0.0/16"
   register: kubeadmoutput
   when: (clusterup|bool == false)
+  tags:
+    - skip_ansible_lint
 
-- name: find token
+- name: Kubeadm token creation for cluster join
   shell: kubeadm token create --print-join-command
   register: results
   when: (clusterup|bool == false)
+  tags:
+    - skip_ansible_lint
 
-- set_fact:
+- name: Extract token from output
+  set_fact:
     token: "{{ results.stdout | regex_search(regexp, '\\2') | first }}"
   vars:
     regexp: '([^\s]+\s){4}([^\s]+)'
   when: (clusterup|bool == false)
 
-- set_fact:
+- name: Extract hash from output
+  set_fact:
     hash: "{{ results.stdout | regex_search(regexp, '\\2') | first }}"
   vars:
     regexp: '([^\s]+\s){6}([^\s]+)'
@@ -51,7 +59,7 @@
   when: (clusterup|bool == false)
 
 - name: "copy /etc/kubernetes/admin.conf"
-  copy: 
+  copy:
     src: /etc/kubernetes/admin.conf
     dest: $HOME/.kube/config
     remote_src: yes
@@ -65,3 +73,5 @@
     kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
     kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/k8s-manifests/kube-flannel-rbac.yml
   when: (clusterup|bool == false)
+  tags:
+    - skip_ansible_lint

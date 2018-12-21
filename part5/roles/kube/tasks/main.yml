@@ -1,24 +1,28 @@
 - name: set timezone to Europe/Paris
   timezone:
-    name: Europe/Paris  
+    name: Europe/Paris
 
 - name: install ntpdate
-  apt: 
+  apt:
     name: ['ntpdate']
     update_cache: no
     state: present
   become: yes
 
-- name: force time sync 
+- name: force time sync
   shell: ntpdate time.windows.com
   become: yes
+  tags:
+    - skip_ansible_lint
 
 - name: Set hostname to ensure they are unique
   hostname:
     name: "{{ inventory_hostname }}"
 
-- name: Disable swap 
+- name: Disable swap
   shell: swapoff -a
+  tags:
+    - skip_ansible_lint
 
 - name: Disable swap permanently
   replace:
@@ -48,7 +52,7 @@
     - { filename: kubernetes, repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main" }
 
 - name: Install packages
-  apt: 
+  apt:
     name: ['apt-transport-https', 'curl', 'software-properties-common', 'ca-certificates', 'kubelet', 'kubeadm', 'kubectl', 'docker-ce']
     state: present
     update_cache: yes
