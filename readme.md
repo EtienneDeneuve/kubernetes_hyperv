@@ -28,10 +28,10 @@ In WSL:
 
 ## TODO
 
-[] Add Tests with [Molecule](https://molecule.readthedocs.io/en/latest/)
-[] Add Tests with [Pester](https://github.com/pester/Pester)
-[] Add Tests for Packer image generation
-[] Configure Travis for CI
+- [ ] Add Tests with [Molecule](https://molecule.readthedocs.io/en/latest/)
+- [ ] Add Tests with [Pester](https://github.com/pester/Pester)
+- [ ] Add Tests for Packer image generation
+- [ ] Configure Travis for CI
 
 ### VM Setup
 
