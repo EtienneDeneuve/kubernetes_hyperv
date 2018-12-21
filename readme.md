@@ -8,24 +8,56 @@
 You need a Windows Server 2019 VM with nested virtualization enabled and at least 8 Go of Ram:  
     [Setup Guide for Hyper V](https://docs.microsoft.com/fr-fr/virtualization/hyper-v-on-windows/user-guide/nested-virtualization)
 
+## TL&DR
+
+On a Windows 10 host :
+
+1. Install [WSL](#WSL)
+1. [Hyper V](#Hyper-V)
+1. Activate [WinRM](#Configure-WinRM-for-Ansible)
+1. install [packer](https://packer.io/downloads).  
+
+In WSL:
+
+1. Install the [dependencies](#Install-Ansible-in-WSL) 
+1. Clone the project ``git clone https://github.com/EtienneDeneuve/kubernetes_hyperv/kubernetes_hyperv.git``
+1. Update the credential for hyperv in ``inventory/hosts.yml`` 
+1. Launch the playbook in ``part5`` : ``ansible-playbook -i inventory/hosts.yml part5/playbook.yml``
+1. SSH into the master node and start playing with your Kubernetes Cluster !
 
 
 ### VM Setup
 
 #### Hyper-V
 In this vm you need Hyper V Feature enabled and Windows Subsystem Linux installed.
+
+For Windows Server 2019 :
+
 ```Powershell
 Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart 
 ```
 
+For Windows 10 :
+
+```PowerShell
+Enable-WindowsOptionalFeature -Online -FeatureName:Microsoft-Hyper-V -All
+```
+
 #### WSL
+
+For Windows Server 2019
 
 ```Powershell
 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
 Restart-Computer
 ```
+For Windows 10
 
-Then
+```Powershell
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+```
+
+Then for Windows 10 and Windows Server 2019
 
 ```Powershell
 Invoke-WebRequest -Uri https://aka.ms/wsl-ubuntu-1604 -OutFile Ubuntu.zip -UseBasicParsing
