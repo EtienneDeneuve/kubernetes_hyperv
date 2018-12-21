@@ -5,8 +5,9 @@
 
 ## Prerequisites
 
-You need a Windows Server 2019 VM with nested virtualization enabled and at least 8 Go of Ram:  
+You need a Windows Server 2019 VM with nested virtualization enabled at least 8 Go of Ram in the VM:  
     [Setup Guide for Hyper V](https://docs.microsoft.com/fr-fr/virtualization/hyper-v-on-windows/user-guide/nested-virtualization)
+or or Windows 10 with a recent build and 8 go of ram (each Kubernetes VM is sized with 2Gb)
 
 ## TL&DR
 
@@ -15,7 +16,7 @@ On a Windows 10 host :
 1. Install [WSL](#WSL)
 1. [Hyper V](#Hyper-V)
 1. Activate [WinRM](#Configure-WinRM-for-Ansible)
-1. install [packer](https://packer.io/downloads).  
+1. Install [packer](https://packer.io/downloads).  
 
 In WSL:
 
@@ -25,6 +26,12 @@ In WSL:
 1. Launch the playbook in ``part5`` : ``ansible-playbook -i inventory/hosts.yml part5/playbook.yml``
 1. SSH into the master node and start playing with your Kubernetes Cluster !
 
+## TODO
+
+[] Add Tests with [Molecule](https://molecule.readthedocs.io/en/latest/)
+[] Add Tests with [Pester](https://github.com/pester/Pester)
+[] Add Tests for Packer image generation
+[] Configure Travis for CI
 
 ### VM Setup
 
