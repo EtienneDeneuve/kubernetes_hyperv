@@ -1,0 +1,11 @@
+root: "c:\\Kubernetes"
+# hyperv_switch: "packer-hyperv-iso"
+hyperv_switch: "Packer"
+username: "etienne"
+password: "P@ssword1234!"
+output_dir: "{{ root }}\\Source_vhdx"
+nodes_name:
+  - master-01
+  - master-02
+  - worker-01
+  - worker-02

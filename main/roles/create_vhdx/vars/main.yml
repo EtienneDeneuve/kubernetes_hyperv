@@ -1,0 +1,5 @@
+root: "c:\\Kubernetes"
+hyperv_switch: "Packer"
+username: "etienne"
+password: "P@ssword1234!"
+output_dir: "{{ root }}\\Source_vhdx"
