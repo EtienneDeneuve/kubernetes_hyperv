@@ -28,7 +28,7 @@ In WSL:
 1. Install the [dependencies](#Install-Ansible-in-WSL)
 1. Clone the project ``git clone https://github.com/EtienneDeneuve/kubernetes_hyperv/kubernetes_hyperv.git``
 1. Update the credential for hyperv in ``inventory/hosts.yml``
-2. Launch the playbook in ``part5`` : ``ansible-playbook -i inventory/hosts.yml main/playbook.yml``
+2. Launch the playbook in ``main`` : ``ansible-playbook -i inventory/hosts.yml main/playbook.yml``
 3. SSH into the master node and start playing with your Kubernetes Cluster !
 
 ## TODO
@@ -39,19 +39,9 @@ In WSL:
 - [ ] Configure CI/CD for test
 - [ ] Add others distro for base os in Kubernetes
 - [ ] Hardening and avoid snowflake 
-
-### VM Setup
-
-#### Hyper-V
-In this vm you need Hyper V Feature enabled and Windows Subsystem Linux installed.
-
-For Windows Server 2019 :
-
-```Powershell
-Install-WindowsFeature -Name Hyper-V -IncludeManagementTools -Restart
-```
-
-#### WSL
+- [ ] Create box with Vagrant for Hyper V VM
+  
+## WSL installation
 
 For Windows 10
 
@@ -67,18 +57,17 @@ Expand-Archive .\Ubuntu.zip c:\Distros\Ubuntu
 Rename-Item c:\distros\ubuntu\ubuntu1804.exe c:\distros\ubuntu\ubuntu.exe
 ```
 
-#### Configure WinRM for Ansible
+## Configure WinRM for Ansible in Windows 2019 VM
 
 Launch this script :  
 [ConfigureRemotingForAnsible](https://github.com/ansible/ansible/blob/devel/examples/scripts/ConfigureRemotingForAnsible.ps1
 )
 or use the one in misc folder : [here](webcast\misc\host_preparation\01_config_winrm_ansible.ps1)
 
-#### Install Ansible in WSL
+## Install Ansible in WSL
 
 Launch the ``04_configure.sh`` script in ``misc\wsl_preparation``:
 sudo .\04_configure.sh
-
 
 ## Code of Conduct
 This project has adopted the [Microsoft Open Source Code of
