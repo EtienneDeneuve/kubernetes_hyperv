@@ -18,10 +18,10 @@ You need a Windows Server 2019 VM with nested virtualization enabled at least 8 
 
 On the 2019 VM host :
 
-~~1. Install [WSL](#WSL)~~
-~~1. [Hyper V](#Hyper-V)~~
+1. ~~Install [WSL](#WSL)~~
+1. ~~[Hyper V](#Hyper-V)~~
 2. Activate [WinRM](#Configure-WinRM-for-Ansible)
-~~3. Install [packer](https://packer.io/downloads).~~
+3. ~~Install [packer](https://packer.io/downloads).~~
 
 In WSL:
 
